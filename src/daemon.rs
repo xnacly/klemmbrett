@@ -17,19 +17,15 @@ use wayland_protocols_wlr::data_control::v1::client::{
     zwlr_data_control_source_v1::{self as source, ZwlrDataControlSourceV1},
 };
 
-/// mime for things klemmbrett wrote to the clipboard, so selecting an entry doesn't duplicate it in
-/// the history by storing it in our history
 const MARKER_MIME: &str = "application/x-klemmbrett";
 const MAX_ENTRIES: usize = 100;
 
-/// Dispatch state of the wayland thread, cloned into the socket thread
 #[derive(Clone)]
 struct Daemon {
     conn: Connection,
     qh: QueueHandle<Daemon>,
     manager: ZwlrDataControlManagerV1,
     device: ZwlrDataControlDeviceV1,
-    /// newest entry first
     history: Arc<Mutex<VecDeque<Entry>>>,
 }
 
@@ -38,7 +34,6 @@ impl Daemon {
         self.history.lock().unwrap()
     }
 
-    /// Moves entry `id` to the front and makes it the clipboard content
     fn set(&self, id: Uuid) -> Response<()> {
         let mut history = self.history();
         let idx = history.iter().position(|e| e.id == id).ok_or_else(not_found)?;
@@ -95,7 +90,6 @@ fn handle_client(mut stream: UnixStream, daemon: &Daemon) -> io::Result<()> {
     Ok(())
 }
 
-/// Reads a request and writes the payload of its response to `out`
 fn respond(r: &mut impl Read, out: &mut Vec<u8>, daemon: &Daemon) -> Response<()> {
     if proto::read_u32(r).map_err(io_err)? != proto::MAGIC {
         return Err(proto::Error::new(Code::BadMagic, "bad magic"));
@@ -122,7 +116,6 @@ fn respond(r: &mut impl Read, out: &mut Vec<u8>, daemon: &Daemon) -> Response<()
     }
 }
 
-/// Reads the offer as text if possible, otherwise as its first mime type
 fn receive(conn: &Connection, offer: &ZwlrDataControlOfferV1) -> Option<Entry> {
     let mimes = offer.data::<Mutex<Vec<String>>>()?.lock().unwrap();
     if mimes.iter().any(|m| m == MARKER_MIME) {
@@ -136,7 +129,6 @@ fn receive(conn: &Connection, offer: &ZwlrDataControlOfferV1) -> Option<Entry> {
 
     let (mut read, write) = std::io::pipe().ok()?;
     offer.receive(mime.clone(), write.as_fd());
-    // the fd is duplicated when queued, ours has to be closed to ever see EOF
     drop(write);
     conn.flush().ok()?;
 

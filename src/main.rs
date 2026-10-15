@@ -21,7 +21,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         cli::Cmd::List => {
             for (i, entry) in proto::list(u8::MAX, 0)?.iter().enumerate() {
-                // anything else would dump raw bytes into the terminal
                 let preview: String = if entry.mime.starts_with("text/") {
                     String::from_utf8_lossy(&entry.data)
                         .lines()

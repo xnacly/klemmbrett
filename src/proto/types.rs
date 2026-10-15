@@ -77,7 +77,6 @@ impl fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-/// Writes the `[code][txtlen][text]` head of a response
 pub fn write_status(w: &mut impl Write, status: &Response<()>) -> io::Result<()> {
     let (code, text) = match status {
         Ok(()) => (Code::Ok, ""),

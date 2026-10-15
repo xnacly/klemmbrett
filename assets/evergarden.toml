@@ -1,21 +1,9 @@
-# klemmbrett theme, copy to ~/.config/klemmbrett/theme.toml to override any of these keys.
-# Defaults to evergarden winter (https://evergarden.moe)
-
-# window background
 background = "#1e2528"
-# body of each entry
 surface = "#262f33"
-# text on background and surface
 text = "#f8f9e8"
-# secondary text like hints and captions
 muted = "#96b4aa"
-# outlines and hard shadows
 border = "#f8f9e8"
-# text on accents, selected and error
 on_accent = "#171c1f"
-# body of the selected entry
 selected = "#cbe3b3"
-# title bar of error messages
 error = "#f57f82"
-# title bars of entries cycle through these
 accents = ["#f57f82", "#f7a182", "#f5d098", "#cbe3b3", "#b3e3ca", "#b2caed", "#d2bdf3", "#f3c0e5"]

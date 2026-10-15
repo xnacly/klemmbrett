@@ -12,20 +12,15 @@ use eframe::egui::{
 
 const WIDTH: f32 = 640.0;
 const HEIGHT: f32 = 560.0;
-/// Entries fetched per request, more are fetched once the end of the list is scrolled into view
 const PAGE_SIZE: usize = 10;
-/// Characters of an entries first line shown as its preview
 const PREVIEW_LEN: usize = 120;
 const THUMBNAIL_HEIGHT: f32 = 96.0;
 const BORDER: f32 = 2.0;
-/// offset of the hard drop shadow behind each card
 const SHADOW: i8 = 4;
-/// width of the accent strip on the left edge of each card
 const STRIP: f32 = 6.0;
 
 enum Preview {
     Text(String),
-    /// uri the image bytes are registered under in the egui image loader
     Image(String),
     Binary,
 }
@@ -40,12 +35,10 @@ struct Ui {
     items: Vec<Item>,
     has_more: bool,
     selected: usize,
-    /// set when the selection moved via keyboard, so the list scrolls to it
     scroll_to_selected: bool,
     error: Option<String>,
 }
 
-/// Flat card in `fill` with a thin border, a hard shadow and an `accent` strip along its left edge
 fn card<R>(ui: &mut egui::Ui, theme: &Theme, accent: Color32, fill: Color32, body: impl FnOnce(&mut egui::Ui) -> R) -> egui::Response {
     let res = Frame::new()
         .fill(fill)
@@ -58,22 +51,18 @@ fn card<R>(ui: &mut egui::Ui, theme: &Theme, accent: Color32, fill: Color32, bod
             body(ui)
         })
         .response;
-    // the response includes the outer margin reserved for the shadow, the card itself ends before it
     let card = Rect::from_min_max(res.rect.min, res.rect.max - egui::Vec2::splat(SHADOW as f32));
     let strip = Rect::from_min_size(card.min + egui::Vec2::splat(BORDER), egui::vec2(STRIP, card.height() - 2.0 * BORDER));
     ui.painter().rect_filled(strip, CornerRadius::ZERO, accent);
     res
 }
 
-/// Opens a window listing the clipboard history, clicking an entry or pressing its number makes it
-/// the clipboard content
 pub fn run() -> Result<(), Box<dyn Error>> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_app_id("klemmbrett")
             .with_title("klemmbrett")
             .with_inner_size([WIDTH, HEIGHT])
-            // a fixed size makes tiling compositors like sway float the window
             .with_resizable(false),
         ..Default::default()
     };
@@ -93,7 +82,6 @@ pub fn run() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/// Resolves a fontconfig pattern to the font file the system would use for it
 fn system_font(pattern: &str) -> Option<FontData> {
     let out = Command::new("fc-match").args(["-f", "%{file}\n%{index}", pattern]).output().ok()?;
     let out = String::from_utf8(out.stdout).ok()?;
@@ -103,8 +91,6 @@ fn system_font(pattern: &str) -> Option<FontData> {
     Some(font)
 }
 
-/// Uses the system fonts if fontconfig is available and bumps the text sizes, egui already scales
-/// everything by the outputs scale factor on top of these
 fn setup_style(ctx: &egui::Context, theme: &Theme) {
     ctx.set_theme(if theme.is_dark() { egui::Theme::Dark } else { egui::Theme::Light });
 
@@ -160,7 +146,6 @@ impl Item {
 }
 
 impl Ui {
-    /// Fetches the next page, plus one entry to know if there is another page after it
     fn load_more(&mut self, ctx: &egui::Context) {
         match proto::list(PAGE_SIZE as u8 + 1, self.items.len() as u32) {
             Ok(mut entries) => {
@@ -184,7 +169,6 @@ impl Ui {
         }
     }
 
-    /// ↑/↓ or k/j move the selection, enter copies it, 0-9 copy that entry directly, esc closes
     fn handle_keys(&mut self, ctx: &egui::Context) {
         const DIGITS: [Key; 10] =
             [Key::Num0, Key::Num1, Key::Num2, Key::Num3, Key::Num4, Key::Num5, Key::Num6, Key::Num7, Key::Num8, Key::Num9];
@@ -283,7 +267,6 @@ card(ui, t, t.error, t.surface, |ui| ui.label(RichText::new(error).color(t.text)
                     if res.clicked() {
                         clicked = Some(idx);
                     }
-                    // only follow the pointer when it moves, a resting pointer would fight the keyboard
                     if res.hovered() && ui.input(|i| i.pointer.is_moving()) {
                         hovered = Some(idx);
                     }
