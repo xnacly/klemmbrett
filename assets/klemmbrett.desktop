@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=klemmbrett
+Comment=Minimalist, dumb and fast wayland native clipboard history manager
+Exec=klemmbrett ui
+Icon=klemmbrett
+Terminal=false
+Categories=Utility;
+Keywords=clipboard;history;

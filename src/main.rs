@@ -21,13 +21,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         cli::Cmd::List => {
             for (i, entry) in proto::list(u8::MAX, 0)?.iter().enumerate() {
-                let preview: String = String::from_utf8_lossy(&entry.data)
-                    .lines()
-                    .next()
-                    .unwrap_or_default()
-                    .chars()
-                    .take(80)
-                    .collect();
+                // anything else would dump raw bytes into the terminal
+                let preview: String = if entry.mime.starts_with("text/") {
+                    String::from_utf8_lossy(&entry.data)
+                        .lines()
+                        .next()
+                        .unwrap_or_default()
+                        .chars()
+                        .take(80)
+                        .collect()
+                } else {
+                    String::new()
+                };
                 println!(
                     "{i}: [{}, {} bytes] {preview}",
                     entry.mime,
