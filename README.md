@@ -24,7 +24,7 @@ Minimalist, dumb and fast wayland native clipboard history manager
 ## Install
 
 ```sh
-cargo install --git https://github.com/xnacly/klemmbrett
+cargo install klemmbrett
 ```
 
 Install the icon and desktop entry, so launchers and docks show it:
