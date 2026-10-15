@@ -1,7 +1,7 @@
 # klemmbrett
 
 <p align="center">
-    <img src="assets/icon128x128.png" align="right" width="128" height="128" alt="klemmbrett icon">
+    <img src="assets/icon128x128.png" width="128" height="128" alt="klemmbrett icon">
 </p>
 
 Minimalist, dumb and fast wayland native clipboard history manager
