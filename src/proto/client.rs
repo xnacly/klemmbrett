@@ -23,8 +23,11 @@ pub fn set(id: Uuid) -> io::Result<()> {
     send(Command::Set, &id).map(drop)
 }
 
-pub fn list(amount: u8) -> io::Result<Vec<Entry>> {
-    let mut r = send(Command::List, &[amount])?;
+/// Lists up to `amount` entries, skipping the `offset` newest ones
+pub fn list(amount: u8, offset: u32) -> io::Result<Vec<Entry>> {
+    let mut payload = vec![amount];
+    payload.extend_from_slice(&offset.to_le_bytes());
+    let mut r = send(Command::List, &payload)?;
     let len = read_u8(&mut r)?;
     (0..len).map(|_| Entry::read(&mut r)).collect()
 }

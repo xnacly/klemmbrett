@@ -1,6 +1,8 @@
 mod cli;
 mod daemon;
 mod proto;
+mod theme;
+mod ui;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = <cli::Cli as clap::Parser>::parse();
@@ -10,20 +12,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match args.cmd {
         cli::Cmd::Daemon => daemon::run(),
-        cli::Cmd::Ui => {
-            if let Some(id) = ui::run(proto::list(u8::MAX)?)? {
-                proto::set(id)?;
-            }
-            Ok(())
-        }
+        cli::Cmd::Ui => ui::run(),
         cli::Cmd::Pick { element } => {
-            let entries = proto::list(u8::MAX)?;
+            let entries = proto::list(u8::MAX, 0)?;
             Ok(proto::set(
                 entries.get(element).ok_or("no such element")?.id,
             )?)
         }
         cli::Cmd::List => {
-            for (i, entry) in proto::list(u8::MAX)?.iter().enumerate() {
+            for (i, entry) in proto::list(u8::MAX, 0)?.iter().enumerate() {
                 let preview: String = String::from_utf8_lossy(&entry.data)
                     .lines()
                     .next()

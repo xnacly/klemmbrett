@@ -1,5 +1,5 @@
 //! request:  [u32 MAGIC][u8 Command] followed by
-//!           Get => [uuid], List => [u8 amount], Set => [uuid]
+//!           Get => [uuid], List => [u8 amount][u32 offset], Set => [uuid]
 //! response: [u8 Code][u8 txtlen][text] followed on Code::Ok by
 //!           Get => entry, List => [u8 len] followed by len entries, Set => nothing
 //! entry:    [uuid][u8 mimelen][mime][u32 bytelen][bytes]

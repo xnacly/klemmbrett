@@ -109,9 +109,10 @@ fn respond(r: &mut impl Read, out: &mut Vec<u8>, daemon: &Daemon) -> Response<()
         }
         Ok(Command::List) => {
             let amount = proto::read_u8(r).map_err(io_err)? as usize;
+            let offset = proto::read_u32(r).map_err(io_err)? as usize;
             let history = daemon.history();
-            out.push(history.len().min(amount) as u8);
-            for entry in history.iter().take(amount) {
+            out.push(history.len().saturating_sub(offset).min(amount) as u8);
+            for entry in history.iter().skip(offset).take(amount) {
                 entry.write(out).map_err(io_err)?;
             }
             Ok(())
